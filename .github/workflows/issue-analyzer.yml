@@ -1,0 +1,67 @@
+name: Issue Analyzer
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  analyze-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Analyze issue with Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowed-tools Bash(gh *)'
+          prompt: |
+            Analyze GitHub issue #${{ github.event.issue.number }} in repository ${{ github.repository }}.
+
+            Context: This is a browser-based Tetris game with three files:
+            - game.js: All game logic (~300 lines). Key functions: collide, rotateCW, tryRotate, ghostY, clearLines. Key globals: board (ROWS×COLS matrix), current and next (piece objects).
+            - index.html: DOM structure — 300×600 canvas for board, second canvas for next-piece preview, HUD panel, overlay div for pause/game-over.
+            - style.css: Dark/retro arcade theme using flexbox, CSS variables, backdrop-filter.
+
+            Steps to follow:
+            1. Fetch the full issue: `gh issue view ${{ github.event.issue.number }} --repo ${{ github.repository }}`
+            2. List existing labels: `gh label list --repo ${{ github.repository }}`
+            3. Based on the issue content, determine the appropriate labels from this set:
+               - bug: something broken or not working as expected
+               - enhancement: new feature or improvement request
+               - question: asking for clarification or help
+               - documentation: related to docs or code comments
+               - ui: visual or CSS-related issue
+               - gameplay: core game mechanics issue
+               - performance: speed or optimization concern
+               Create any label that does not yet exist with `gh label create NAME --repo ${{ github.repository }} --color COLOR` (pick a sensible hex color), then add the labels to the issue with `gh issue edit ${{ github.event.issue.number }} --repo ${{ github.repository }} --add-label "label1,label2"`.
+            4. Post a diagnosis comment in Spanish using `gh issue comment ${{ github.event.issue.number }} --repo ${{ github.repository }} --body "BODY"` with this exact structure:
+
+            ## Diagnóstico Automático
+
+            **Tipo**: `bug` | `mejora` | `pregunta` | `documentación`
+            **Severidad**: `crítica` | `alta` | `media` | `baja`
+            **Archivos afectados**: list which of game.js / index.html / style.css are involved
+
+            ### Descripción del problema
+            Clear explanation of what is failing or what needs to be built.
+
+            ### Análisis técnico
+            Root cause analysis or technical breakdown of what changes are required. Reference specific functions or variables from the codebase when relevant.
+
+            ### Enfoque de solución
+            Concrete step-by-step approach to implement the fix or feature.
+
+            ### Complejidad estimada
+            **baja | media | alta** — brief justification.
+
+            ---
+            *Diagnóstico generado automáticamente por Claude*
