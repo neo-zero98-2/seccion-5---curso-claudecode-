@@ -11,7 +11,7 @@ const COLORS = [
   '#ba68c8', // T - purple
   '#81c784', // S - green
   '#e57373', // Z - red
-  '#1976D2', // J - blue
+  '#0000FF', // J - blue
   '#ffb74d', // L - orange
   '#e8e8ff', // Marco - plateado especial (rara)
 ];
