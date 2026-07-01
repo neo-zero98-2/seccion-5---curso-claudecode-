@@ -43,8 +43,14 @@ const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
+const nameForm        = document.getElementById('name-form');
+const playerNameInput = document.getElementById('player-name');
+const saveScoreBtn    = document.getElementById('save-score-btn');
+const scoresList      = document.getElementById('scores-list');
+const resetRecordsBtn = document.getElementById('reset-records-btn');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let combo, maxCombo, maxLines;
 
 function getCSSVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -140,7 +146,12 @@ function clearLines() {
     score += (LINE_SCORES[cleared] || 0) * level;
     level = Math.floor(lines / 10) + 1;
     dropInterval = Math.max(100, 1000 - (level - 1) * 90);
+    combo++;
+    if (combo > maxCombo) maxCombo = combo;
+    if (cleared > maxLines) maxLines = cleared;
     updateHUD();
+  } else {
+    combo = 0;
   }
 }
 
@@ -256,6 +267,17 @@ function endGame() {
   cancelAnimationFrame(animId);
   overlayTitle.textContent = 'GAME OVER';
   overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
+  // Records
+  const scores = loadScores();
+  const isTopFive = scores.length < 5 || score > scores[scores.length - 1].score;
+  if (isTopFive) {
+    nameForm.classList.remove('hidden');
+    playerNameInput.value = '';
+    playerNameInput.focus();
+  } else {
+    nameForm.classList.add('hidden');
+  }
+  renderScores(score);
   overlay.classList.remove('hidden');
 }
 
@@ -290,6 +312,42 @@ function loop(ts) {
   animId = requestAnimationFrame(loop);
 }
 
+function loadScores() {
+  try {
+    return JSON.parse(localStorage.getItem('tetris-scores') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveScore(name) {
+  const scores = loadScores();
+  scores.push({ name: name || 'Anónimo', score, maxCombo, maxLines, date: Date.now() });
+  scores.sort((a, b) => b.score - a.score);
+  scores.splice(5);
+  localStorage.setItem('tetris-scores', JSON.stringify(scores));
+  nameForm.classList.add('hidden');
+  renderScores(null);
+}
+
+function renderScores(currentScore) {
+  const scores = loadScores();
+  if (!scores.length) {
+    scoresList.innerHTML = '<li class="no-records">Sin records aún</li>';
+    return;
+  }
+  const firstIdx = currentScore !== null ? scores.findIndex(x => x.score === currentScore) : -1;
+  scoresList.innerHTML = scores.map((s, i) => {
+    const isNew = currentScore !== null && s.score === currentScore && i === firstIdx;
+    return `<li class="${isNew ? 'new-record' : ''}">
+      <span class="rec-rank">#${i + 1}</span>
+      <span class="rec-name">${s.name}</span>
+      <span class="rec-score">${s.score.toLocaleString()}</span>
+      <span class="rec-meta">${s.maxCombo}C ${s.maxLines}L</span>
+    </li>`;
+  }).join('');
+}
+
 function init() {
   board = createBoard();
   score = 0;
@@ -297,6 +355,9 @@ function init() {
   level = 1;
   paused = false;
   gameOver = false;
+  combo = 0;
+  maxCombo = 0;
+  maxLines = 0;
   dropInterval = 1000;
   dropAccum = 0;
   lastTime = performance.now();
@@ -334,5 +395,16 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+
+saveScoreBtn.addEventListener('click', () => {
+  saveScore(playerNameInput.value.trim());
+});
+playerNameInput.addEventListener('keydown', (e) => {
+  if (e.code === 'Enter') saveScore(playerNameInput.value.trim());
+});
+resetRecordsBtn.addEventListener('click', () => {
+  localStorage.removeItem('tetris-scores');
+  renderScores(null);
+});
 
 init();
