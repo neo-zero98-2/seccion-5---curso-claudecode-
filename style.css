@@ -26,6 +26,29 @@
   --toggle-thumb: #e0e0e0;
 }
 
+body.skin-neon {
+  --bg-body: #000000;
+  --bg-board: #050508;
+  --grid-color: #0a0a14;
+  --bg-overlay: rgba(0, 0, 10, 0.88);
+}
+
+body.skin-pastel {
+  --bg-body: #fdf6ff;
+  --color-text: #3a2a4a;
+  --color-accent: #9c59d1;
+  --bg-board: #f3eaff;
+  --grid-color: #e8dcf5;
+  --bg-overlay: rgba(240, 230, 255, 0.88);
+  --border-color: #d4c0e8;
+}
+
+body.skin-pixel {
+  --bg-body: #1a1a1a;
+  --bg-board: #111111;
+  --grid-color: #1e1e1e;
+}
+
 body.light-mode {
   --bg-body: #f5f5fa;
   --color-text: #1a1a2e;
@@ -261,4 +284,37 @@ kbd {
 .toggle-icon {
   font-size: 14px;
   line-height: 1;
+}
+
+/* ---- Skin selector ---- */
+#skin-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+}
+
+.skin-btn {
+  background: var(--bg-kbd);
+  border: 1px solid var(--border-kbd);
+  color: var(--color-kbd);
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  text-align: center;
+}
+
+.skin-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.skin-btn.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--bg-body);
 }
