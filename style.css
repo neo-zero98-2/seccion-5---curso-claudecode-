@@ -262,3 +262,68 @@ kbd {
   font-size: 14px;
   line-height: 1;
 }
+
+/* ---- Pause menu ---- */
+.menu-btn {
+  background: var(--bg-restart-btn);
+  color: var(--color-restart-btn);
+  border: none;
+  border-radius: 6px;
+  padding: 9px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  width: 180px;
+  text-align: left;
+  transition: background 0.15s;
+}
+.menu-btn:hover {
+  background: var(--bg-restart-btn-hover);
+}
+#controls-detail > summary {
+  list-style: none;
+}
+#controls-detail > summary::-webkit-details-marker {
+  display: none;
+}
+.controls-list-overlay {
+  list-style: none;
+  padding: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-controls);
+}
+.controls-list-overlay kbd {
+  background: var(--bg-kbd);
+  border: 1px solid var(--border-kbd);
+  color: var(--color-kbd);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 10px;
+}
+.level-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.menu-label {
+  font-size: 11px;
+  color: var(--color-label);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+#start-level {
+  background: var(--bg-kbd);
+  border: 1px solid var(--border-kbd);
+  color: var(--color-text);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  width: 80px;
+  text-align: center;
+}
